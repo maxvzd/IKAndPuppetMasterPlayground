@@ -4,8 +4,9 @@ public class MovementScript : MonoBehaviour
 {
     private Animator animator;
     
-    [SerializeField] private float turnSpeed = 0.5f;
     [SerializeField] private Transform mouseTarget;
+
+    private float walkSpeedModifier;
 
     // Start is called before the first frame update
     void Start()
@@ -18,19 +19,11 @@ public class MovementScript : MonoBehaviour
     {
         float forwardDirection = Input.GetAxis("Vertical");
         float rightDirection = Input.GetAxis("Horizontal");
+
+        walkSpeedModifier += Input.GetAxis("Mouse ScrollWheel");
+        walkSpeedModifier = Mathf.Clamp(walkSpeedModifier, 0.5f, 2f);
         
-        animator.SetFloat(Constants.ForwardDirection, forwardDirection);
-        animator.SetFloat(Constants.RightDirection, rightDirection);
-
-
-        //if (forwardDirection > 0)
-        {
-            Vector3 mouseTargetPosition = mouseTarget.position;
-            Vector3 currentPosition = transform.position;
-            
-            Vector3 relativePos = new Vector3(mouseTargetPosition.x, currentPosition.y, mouseTargetPosition.z) - currentPosition;
-            Quaternion toRotation = Quaternion.LookRotation(relativePos);
-            transform.rotation = Quaternion.Lerp(transform.rotation, toRotation, turnSpeed * Time.deltaTime);
-        }
+        animator.SetFloat(Constants.ForwardDirection, forwardDirection * walkSpeedModifier);
+        animator.SetFloat(Constants.RightDirection, rightDirection * walkSpeedModifier);
     }
 }
