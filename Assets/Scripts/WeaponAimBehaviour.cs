@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Diagnostics;
 using RootMotion.FinalIK;
 using UnityEngine;
 using UnityEngine.Serialization;
@@ -18,9 +19,23 @@ public class WeaponAimBehaviour : MonoBehaviour
     private Vector3 gunLoweredPosition;
     private Quaternion gunLoweredRotation;
 
-    [SerializeField] private Transform gunTransform;
+    [SerializeField] private Transform weaponTransform;
     [SerializeField] private AimIK weaponAimIK;
+    [SerializeField] private Camera camera;
+    [SerializeField] private float aimFOV;
+    [SerializeField] private float aimSpeed;
     
+    private float timeElapsed;
+    private float lerpDuration = 1f;
+    private Vector3 currentWeaponPos;
+    private Quaternion currentWeaponRot;
+    private Vector3 targetWeaponPos;
+    private Quaternion targetWeaponRot;
+
+    private float originalFOV;
+    private float targetFOV;
+    private float currentFOV;
+
     //[SerializeField] private Transform rightHandIKTarget;
     
     // Start is called before the first frame update
@@ -30,11 +45,13 @@ public class WeaponAimBehaviour : MonoBehaviour
 
         gunUpPosition = new Vector3(-0.0417f, -0.1447f, 0.4391f);
         gunUpRotation = Quaternion.Euler(new Vector3(211.174f, -4.632f, 91.028f));
-        gunAimPosition = new Vector3(-0.1332f, -0.1233f, 0.4772f);
-        gunAimRotation = Quaternion.Euler(new Vector3(210.351f, 2.5f, 84.615f));
+        gunAimPosition = new Vector3(-0.227f, -0.197f, 0.446f);
+        gunAimRotation = Quaternion.Euler(new Vector3(217.257f, 1.814f, 83.89f));
         gunLoweredPosition = new Vector3(0.076f, -0.242f, 0.227f);
         gunLoweredRotation = Quaternion.Euler(new Vector3(252.846f, 38.435f, 52.246f));
-        
+
+
+        originalFOV = camera.fieldOfView;
         MoveWeaponToLowerPosition();
         //MoveWeaponToUpPosition();
         //MoveWeaponToAimPosition();
@@ -43,7 +60,6 @@ public class WeaponAimBehaviour : MonoBehaviour
     private IEnumerator LowerWeaponAfterXSeconds(int numberOfSecondsToWait)
     {
         yield return new WaitForSeconds(numberOfSecondsToWait);
-
         MoveWeaponToLowerPosition();
     }
 
@@ -61,12 +77,10 @@ public class WeaponAimBehaviour : MonoBehaviour
     private void MoveWeaponToUpPosition()
     {
         isWeaponUp = true;
-                
-        //rightHandIKTarget.SetParent(gunUpPosition, false);
-        gunTransform.SetLocalPositionAndRotation(gunUpPosition, gunUpRotation);
+
+        UpdateWeaponTargetPositionAndRotation(gunUpPosition, gunUpRotation, 0.25f, originalFOV);
         
         weaponAimIK.solver.IKPositionWeight = 1;
-        //TurnOnRightHandIK();
         
         animator.SetBool(Constants.IsWeaponUp, isWeaponUp);
     }
@@ -74,12 +88,8 @@ public class WeaponAimBehaviour : MonoBehaviour
     private void MoveWeaponToAimPosition()
     {
         isWeaponUp = true;
-                
-        //rightHandIKTarget.SetParent(gunAimPosition, false);
-        //TurnOnRightHandIK();
         
-        gunTransform.SetLocalPositionAndRotation(gunAimPosition, gunAimRotation);
-       
+        UpdateWeaponTargetPositionAndRotation(gunAimPosition, gunAimRotation, aimSpeed, aimFOV);
         weaponAimIK.solver.IKPositionWeight = 1f;
         
         animator.SetBool(Constants.IsWeaponUp, isWeaponUp);
@@ -87,14 +97,24 @@ public class WeaponAimBehaviour : MonoBehaviour
 
     private void MoveWeaponToLowerPosition()
     {
-        //TurnOffRightHandIK();
         isWeaponUp = false;
-        gunTransform.SetLocalPositionAndRotation(gunLoweredPosition, gunLoweredRotation);
-
+        UpdateWeaponTargetPositionAndRotation(gunLoweredPosition, gunLoweredRotation, 0.25f, originalFOV);
         weaponAimIK.solver.IKPositionWeight = 0;
-        
         animator.SetBool(Constants.IsWeaponUp, isWeaponUp);
-        //weaponAimIK.solver.
+    }
+
+    private void UpdateWeaponTargetPositionAndRotation(Vector3 targetPosition, Quaternion targetRotation, float timeLength, float fov)
+    {
+        currentWeaponPos = weaponTransform.localPosition;
+        currentWeaponRot = weaponTransform.localRotation;
+        
+        lerpDuration = timeLength;
+        timeElapsed = 0;
+        currentFOV = camera.fieldOfView;
+        targetFOV = fov;
+        
+        targetWeaponPos = targetPosition;
+        targetWeaponRot = targetRotation;
     }
 
     // Update is called once per frame
@@ -105,6 +125,10 @@ public class WeaponAimBehaviour : MonoBehaviour
             if (isWeaponUp)
             {
                 //fire
+                if (!ReferenceEquals(lowerWeaponCoRoutine, null))
+                {
+                    StopCoroutine(lowerWeaponCoRoutine);
+                }
             }
             else
             {
@@ -113,7 +137,6 @@ public class WeaponAimBehaviour : MonoBehaviour
             }
         }
         
-        
         if (Input.GetMouseButtonDown(1))
         {
             MoveWeaponToAimPosition();
@@ -121,12 +144,25 @@ public class WeaponAimBehaviour : MonoBehaviour
             {
                 StopCoroutine(lowerWeaponCoRoutine);
             }
+        
+            lowerWeaponCoRoutine = null;
         }
         
         if (Input.GetMouseButtonUp(1))
         {
             MoveWeaponToUpPosition();
             ResetLowerWeaponCoRoutine();
+        }
+        
+        if (timeElapsed < lerpDuration)
+        {
+            float t = timeElapsed / lerpDuration;
+            
+            camera.fieldOfView = Mathf.Lerp(currentFOV, targetFOV, t);
+            weaponTransform.localPosition = Vector3.Lerp(currentWeaponPos, targetWeaponPos, t);
+            weaponTransform.localRotation = Quaternion.Lerp(currentWeaponRot, targetWeaponRot, t);
+            
+            timeElapsed += Time.deltaTime;
         }
     }
 }

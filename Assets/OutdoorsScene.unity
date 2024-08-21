@@ -1037,7 +1037,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cameraTransform: {fileID: 1823688467}
   mouseTarget: {fileID: 1513270933}
-  turnToleranceDegrees: 90
+  turnToleranceDegrees: 80
   turnSpeed: 10
 --- !u!114 &93902470
 MonoBehaviour:
@@ -1063,8 +1063,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5d2f41f80d399be4593811359323b45f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gunTransform: {fileID: 424338700}
+  weaponTransform: {fileID: 424338700}
   weaponAimIK: {fileID: 93902464}
+  camera: {fileID: 1823688466}
+  aimFOV: 40
+  aimSpeed: 0.5
 --- !u!1 &143820597
 GameObject:
   m_ObjectHideFlags: 0
