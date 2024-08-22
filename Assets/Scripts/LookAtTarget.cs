@@ -2,10 +2,23 @@ using UnityEngine;
 
 public class LookAtTarget : MonoBehaviour
 {
-    [SerializeField] private Transform target;
+    [SerializeField] private Transform target; 
+    //[SerializeField] private float cameraLookSpeed;
     
-    void Update()
+    private void Start()
+    {        
+
+
+        //aimIk.solver.OnPostUpdate += OnPostFBBIK;
+    }
+
+    private void Update()
     {
-        transform.LookAt(target);
+
+        // Vector3 direction = target.transform.position - transform.position;
+        // Quaternion toRotation = Quaternion.LookRotation(direction);
+        // transform.rotation = Quaternion.Lerp(transform.rotation, toRotation, cameraLookSpeed * Time.deltaTime);
+        
+        transform.LookAt(target.position);
     }
 }

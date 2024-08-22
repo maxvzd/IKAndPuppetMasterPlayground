@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-public class MoveToScript : MonoBehaviour
+public class MoveToScriptViaParent : MonoBehaviour
 {
     [SerializeField] private Transform objectToMoveTo;
     

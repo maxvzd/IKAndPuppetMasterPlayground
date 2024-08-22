@@ -21,7 +21,7 @@ public class WeaponAimBehaviour : MonoBehaviour
 
     [SerializeField] private Transform weaponTransform;
     [SerializeField] private AimIK weaponAimIK;
-    [SerializeField] private Camera camera;
+    [SerializeField] private Camera fpCamera;
     [SerializeField] private float aimFOV;
     [SerializeField] private float aimSpeed;
     
@@ -51,7 +51,7 @@ public class WeaponAimBehaviour : MonoBehaviour
         gunLoweredRotation = Quaternion.Euler(new Vector3(252.846f, 38.435f, 52.246f));
 
 
-        originalFOV = camera.fieldOfView;
+        originalFOV = fpCamera.fieldOfView;
         MoveWeaponToLowerPosition();
         //MoveWeaponToUpPosition();
         //MoveWeaponToAimPosition();
@@ -110,7 +110,7 @@ public class WeaponAimBehaviour : MonoBehaviour
         
         lerpDuration = timeLength;
         timeElapsed = 0;
-        currentFOV = camera.fieldOfView;
+        currentFOV = fpCamera.fieldOfView;
         targetFOV = fov;
         
         targetWeaponPos = targetPosition;
@@ -158,7 +158,7 @@ public class WeaponAimBehaviour : MonoBehaviour
         {
             float t = timeElapsed / lerpDuration;
             
-            camera.fieldOfView = Mathf.Lerp(currentFOV, targetFOV, t);
+            fpCamera.fieldOfView = Mathf.Lerp(currentFOV, targetFOV, t);
             weaponTransform.localPosition = Vector3.Lerp(currentWeaponPos, targetWeaponPos, t);
             weaponTransform.localRotation = Quaternion.Lerp(currentWeaponRot, targetWeaponRot, t);
             

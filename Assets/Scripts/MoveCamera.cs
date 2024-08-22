@@ -6,8 +6,8 @@ public class MoveCamera : MonoBehaviour
     private float xRotation;
 
     [SerializeField] private float sensitivity; 
-    [SerializeField] private float maxVerticalAngle; 
-    
+    [SerializeField] private float maxVerticalAngle;
+    [SerializeField] private Camera fpCamera;
     
     // Sart is called before the first frame update
     void Start()
@@ -22,11 +22,15 @@ public class MoveCamera : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        xRotation += Input.GetAxis("Mouse Y") * sensitivity * Time.deltaTime;
-        yRotation += Input.GetAxis("Mouse X") * sensitivity * Time.deltaTime;
+        float xDelta = Input.GetAxis("Mouse Y") * sensitivity * Time.deltaTime;
+        float yDelta = Input.GetAxis("Mouse X") * sensitivity * Time.deltaTime;
+        xRotation += xDelta;
+        yRotation += yDelta;
 
         xRotation = Mathf.Clamp(xRotation, -maxVerticalAngle, maxVerticalAngle);
 
         transform.eulerAngles = new Vector3(-xRotation, yRotation, 0);
+        //fpCamera.transform.eulerAngles = new Vector3(-xRotation, yRotation, 0);
+        //fpCamera.transform.Rotate(new Vector3(-xDelta, yDelta, -fpCamera.transform.eulerAngles.z));
     }
 }

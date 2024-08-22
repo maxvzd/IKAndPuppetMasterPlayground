@@ -4,12 +4,12 @@ using UnityEngine;
 
 public class TurnBehaviour : MonoBehaviour
 {
-    [Header("AssignableObjects")] [SerializeField]
-    private Transform cameraTransform;
-
+    [Header("AssignableObjects")] 
+    [SerializeField] private Transform cameraTransform;
     [SerializeField] private Transform mouseTarget;
 
-    [Header("Variables")] [SerializeField] private float turnToleranceDegrees;
+    [Header("Variables")] 
+    [SerializeField] private float turnToleranceDegrees;
     [SerializeField] private float turnSpeed;
 
     private Animator animator;
