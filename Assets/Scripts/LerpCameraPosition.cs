@@ -11,7 +11,7 @@ public class LerpCameraPosition : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        lerpDuration = 0.01f;
+        lerpDuration = 0.1f;
     }
 
     // Update is called once per frame
@@ -28,8 +28,8 @@ public class LerpCameraPosition : MonoBehaviour
 
         if (timeElapsed < lerpDuration)
         {
-            transform.position = Vector3.Lerp(currentTransform.position, targetPosition, timeElapsed);
             timeElapsed += Time.deltaTime;
+            transform.position = Vector3.Lerp(currentTransform.position, targetPosition, timeElapsed);
         }
         else
         {

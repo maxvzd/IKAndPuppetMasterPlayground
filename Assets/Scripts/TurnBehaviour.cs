@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class TurnBehaviour : MonoBehaviour
@@ -29,7 +27,9 @@ public class TurnBehaviour : MonoBehaviour
     void Update()
     {
         float forwardDirection = Input.GetAxis(Constants.ForwardDirectionKey);
-        if (forwardDirection > 0)
+        float rightDirection = Input.GetAxis(Constants.RightDirectionKey);
+        
+        if (forwardDirection > 0 || forwardDirection < 0 || rightDirection > 0 || rightDirection < 0)
         {
             Vector3 mouseTargetPosition = mouseTarget.position;
             Vector3 currentPosition = transform.position;
