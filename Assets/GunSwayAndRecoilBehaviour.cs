@@ -4,6 +4,7 @@ using UnityEngine;
 public class GunSwayAndRecoilBehaviour : MonoBehaviour
 {
     [SerializeField] private Transform objectToLerpTowards;
+    //[SerializeField] private AnimationCurve recoilCurve; 
 
     //Will be determined by player skill eventually;
     //[SerializeField] private float weaponSwayAmount;
@@ -52,6 +53,7 @@ public class GunSwayAndRecoilBehaviour : MonoBehaviour
     }
 
     //TODO: Make this look less shit?
+    //USE ANIM CURVEs
     public void AddRecoil(Vector3 recoilOffset)
     {
         _recoilOffset += recoilOffset;

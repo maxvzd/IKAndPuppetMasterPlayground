@@ -1,6 +1,8 @@
 using System.Collections;
 using RootMotion.FinalIK;
+using Unity.Mathematics;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 public class WeaponAimBehaviour : MonoBehaviour
 {
@@ -21,7 +23,6 @@ public class WeaponAimBehaviour : MonoBehaviour
     [SerializeField] private float aimSpeed;
     [SerializeField] private BipedIK bipedIk;
     [SerializeField] private Transform weaponAimTarget;
-    
     
     
     private float _timeElapsed;
@@ -157,45 +158,9 @@ public class WeaponAimBehaviour : MonoBehaviour
         _targetWeaponRot = targetRotation;
     }
 
-    //Amount of rotation + recovery time influenced by weapon handling (and eventually skill)
-    private IEnumerator RotateWeaponCoRoutine(float weaponHandling)
-    {
-        float weaponSwayModifier = 1f;
-        if (_isWeaponAiming)
-        {
-            weaponSwayModifier = 0.5f;
-        }
+    
 
-        float xRange = 6 * weaponHandling * weaponSwayModifier;
-        float yRange = 3 * weaponHandling * weaponSwayModifier;
-        float zRange = 2 * weaponHandling * weaponSwayModifier; 
-        
-        float xRot = Random.Range(0, xRange);
-        float yRot = Random.Range(-yRange, yRange);
-        float zRot = Random.Range(-zRange, zRange);
-        
-        float lerpTime = 0.2f * weaponHandling;
-        
-        Vector3 oldRot = _targetWeaponRot.eulerAngles;
-        Vector3 recoilJitter = new Vector3(xRot, yRot, zRot);
-        
-        yield return LerpToRotation(lerpTime, oldRot, oldRot + recoilJitter);
 
-        yield return LerpToRotation(lerpTime, oldRot + recoilJitter, oldRot);
-    }
-
-    private IEnumerator LerpToRotation(float lerpTime, Vector3 oldRot, Vector3 newRot)
-    {
-        float timeElapsed = 0;
-        while (timeElapsed < lerpTime)
-        {
-            float t = timeElapsed / lerpTime;
-            _weaponTransform.localEulerAngles = Vector3.Lerp(oldRot, newRot, t);
-            
-            timeElapsed += Time.deltaTime;
-            yield return new WaitForEndOfFrame();
-        }
-    }
 
     // Update is called once per frame
     private void Update()
@@ -212,9 +177,13 @@ public class WeaponAimBehaviour : MonoBehaviour
                 {
                     StopCoroutine(_lowerWeaponCoRoutine);
                 }
-
-                _weaponFireScript.Fire(_currentlyEquippedGun.Stats.Recoil, _gunSwayBehaviour);
-                StartCoroutine(RotateWeaponCoRoutine(_currentlyEquippedGun.Stats.Handling));
+                
+                _weaponFireScript.Fire(
+                    _currentlyEquippedGun.Stats.Recoil, 
+                    _gunSwayBehaviour, 
+                    _targetWeaponRot.eulerAngles, 
+                    _isWeaponAiming,
+                    _currentlyEquippedGun.Stats.Handling);
 
             }
             else
