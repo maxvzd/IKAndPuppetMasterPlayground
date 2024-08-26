@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.VFX;
 using Random = UnityEngine.Random;
 
 public class FireWeapon : MonoBehaviour
@@ -9,7 +10,8 @@ public class FireWeapon : MonoBehaviour
     //[SerializeField] private float weaponRecoil;
     
     [SerializeField] private AnimationCurve recoilCurve;
-
+    [SerializeField] private VisualEffect muzzleFlashVFX;
+    [SerializeField] private GameObject muzzleFlashLight;
     //private GunSwayAndRecoilBehaviour _fireAtTargetLerper;
 
     private void Start()
@@ -20,7 +22,8 @@ public class FireWeapon : MonoBehaviour
     public void Fire(float recoil, GunSwayAndRecoilBehaviour swayBehaviour, Vector3 desiredRotation, bool isAiming, float weaponHandling)
     {
         StartCoroutine(RotateWeaponCoRoutine(desiredRotation, isAiming, weaponHandling));
-
+        muzzleFlashVFX.Play();
+        muzzleFlashLight.SetActive(true);
         if (isAiming)
         {
             recoil *= 0.5f;
