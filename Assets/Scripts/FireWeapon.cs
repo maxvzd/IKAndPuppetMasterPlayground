@@ -8,6 +8,7 @@ public class FireWeapon : MonoBehaviour
     [SerializeField] private AnimationCurve recoilCurve;
     [SerializeField] private VisualEffect muzzleFlashVFX;
     [SerializeField] private GameObject muzzleFlashLight;
+    [SerializeField] private GameObject firePoint;
 
     private AudioSource _audioSource;
 
@@ -16,8 +17,55 @@ public class FireWeapon : MonoBehaviour
         _audioSource = GetComponent<AudioSource>();
     }
 
+    
+    //Calculates bullet drop
+    //Is this even worth it tbh?? Do we really need to account for that much distance?
+    private void RayCastShot(GunProperties gunProps)
+    {
+        float stepForEachRayCast = 5f;
+        float gravity = 9.81f;
+        bool isHit = false;
+        float distanceTravelled = 0f;
+        
+        Vector3 origin = firePoint.transform.position;
+        //Vector3 endPoint = new Vector3(origin.x, gravity * (stepForEachRayCast / gunProps.MuzzleVelocity), origin.z + gunProps.MuzzleVelocity);
+
+        Vector3 endPoint = CalculateEndPointOfShotOverXMetres(gravity, stepForEachRayCast, gunProps.MuzzleVelocity, distanceTravelled);
+        
+        while (!isHit && distanceTravelled < gunProps.MuzzleVelocity)
+        {
+            Vector3 direction = endPoint - origin;
+            //Ray ray = new Ray(firePoint.transform.position, direction);
+            Debug.DrawRay(origin, direction, Color.green, 5f);
+            
+            if(Physics.Raycast(origin, direction, out RaycastHit hit))
+            {
+                isHit = true;
+
+                break;
+            }
+
+            origin = endPoint;
+            endPoint = CalculateEndPointOfShotOverXMetres(gravity, stepForEachRayCast, gunProps.MuzzleVelocity, distanceTravelled);
+            distanceTravelled += stepForEachRayCast;
+        }
+    }
+
+    //forward transform is only negative because the gun faces the wrong way!!!
+    //TO DO better weight + drag calculations
+    private Vector3 CalculateEndPointOfShotOverXMetres(float gravity, float distance, float muzzleVelocity, float totalDistanceTravelled)
+    {
+        Transform currentTransform = transform;
+        float velocityWithDrag = muzzleVelocity - totalDistanceTravelled * 50; //50 is the bullet slowing down 50m/s
+        
+        return -currentTransform.forward * velocityWithDrag - currentTransform.up * (gravity * (distance / velocityWithDrag));
+    }
+    
     public void Fire(GunSwayAndRecoilBehaviour swayBehaviour, Vector3 desiredRotation, bool isAiming, GunProperties gunProps)
     {
+        RayCastShot(gunProps);
+        
+        
         StartCoroutine(RotateWeaponCoRoutine(desiredRotation, isAiming, gunProps.Handling));
         muzzleFlashVFX.Play();
         muzzleFlashLight.SetActive(true);

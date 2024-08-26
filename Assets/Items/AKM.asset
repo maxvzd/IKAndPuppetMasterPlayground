@@ -21,3 +21,5 @@ MonoBehaviour:
   recoil: 0.5
   roundsPerMinute: 600
   fireSound: {fileID: 8300000, guid: 65201ddabb4144f6a8fb9480120b7656, type: 3}
+  muzzleVelocity: 700
+  effectiveRange: 350
