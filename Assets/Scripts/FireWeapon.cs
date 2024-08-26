@@ -1,29 +1,33 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.VFX;
 using Random = UnityEngine.Random;
 
 public class FireWeapon : MonoBehaviour
 {
-    //[SerializeField] private Transform fireAtTarget;
-    //[SerializeField] private float weaponRecoil;
-    
     [SerializeField] private AnimationCurve recoilCurve;
     [SerializeField] private VisualEffect muzzleFlashVFX;
     [SerializeField] private GameObject muzzleFlashLight;
-    //private GunSwayAndRecoilBehaviour _fireAtTargetLerper;
+
+    private AudioSource _audioSource;
 
     private void Start()
     {
-        //_fireAtTargetLerper = fireAtTarget.GetComponent<GunSwayAndRecoilBehaviour>();
+        _audioSource = GetComponent<AudioSource>();
     }
 
-    public void Fire(float recoil, GunSwayAndRecoilBehaviour swayBehaviour, Vector3 desiredRotation, bool isAiming, float weaponHandling)
+    public void Fire(GunSwayAndRecoilBehaviour swayBehaviour, Vector3 desiredRotation, bool isAiming, GunProperties gunProps)
     {
-        StartCoroutine(RotateWeaponCoRoutine(desiredRotation, isAiming, weaponHandling));
+        StartCoroutine(RotateWeaponCoRoutine(desiredRotation, isAiming, gunProps.Handling));
         muzzleFlashVFX.Play();
         muzzleFlashLight.SetActive(true);
+
+        _audioSource.clip = gunProps.FireSound;
+        float pitch = Random.Range(0.9f, 1.1f);
+        _audioSource.pitch = pitch;
+        _audioSource.Play();
+
+        float recoil = gunProps.Recoil;
         if (isAiming)
         {
             recoil *= 0.5f;

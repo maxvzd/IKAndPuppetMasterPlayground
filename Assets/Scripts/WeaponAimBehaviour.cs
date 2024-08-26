@@ -24,7 +24,6 @@ public class WeaponAimBehaviour : MonoBehaviour
     [SerializeField] private BipedIK bipedIk;
     [SerializeField] private Transform weaponAimTarget;
     
-    
     private float _timeElapsed;
     private float _lerpDuration = 1f;
     
@@ -37,22 +36,15 @@ public class WeaponAimBehaviour : MonoBehaviour
     private float _targetFOV;
     private float _currentFOV;
 
-    //[SerializeField] private Transform rightHandIKTarget;
+    private bool _roundsPerMinuteLock;
+    private float _weaponLockWaitTime;
 
     // Start is called before the first frame update
     void Start()
     {
         _animator = GetComponent<Animator>();
 
-        // _gunUpPosition = new Vector3(-0.0417f, -0.1447f, 0.4391f);
-        // _gunUpRotation = Quaternion.Euler(new Vector3(211.174f, -4.632f, 91.028f));
-        // _gunAimPosition = new Vector3(-0.18f, -0.156f, 0.499f);
-        // _gunAimRotation = Quaternion.Euler(new Vector3(215.889f, 10.08f, 79.5f));
-        // _gunLoweredPosition = new Vector3(0.076f, -0.242f, 0.227f);
-        // _gunLoweredRotation = Quaternion.Euler(new Vector3(252.846f, 38.435f, 52.246f));
-
-        //GameObject weaponGameObject = null;
-
+        _roundsPerMinuteLock = true;
         _weaponTransform = null;
         if (weaponSlot.childCount > 0)
         {
@@ -63,11 +55,16 @@ public class WeaponAimBehaviour : MonoBehaviour
             _gunSwayBehaviour = weaponAimTarget.GetComponent<GunSwayAndRecoilBehaviour>();
             
             //This will eventually rely more on player skill
-            _gunSwayBehaviour.SetSwayAmount(_currentlyEquippedGun.Stats.Handling * 0.01f);
+            _gunSwayBehaviour.SetSwayAmount(_currentlyEquippedGun.Properties.Handling * 0.01f);
+            
+            float roundsPerMinute = _currentlyEquippedGun.Properties.RoundsPerMinute;
+            float roundsPerSecond = roundsPerMinute / 60f;
+            _weaponLockWaitTime = 1 / roundsPerSecond;
         }
 
         _originalFOV = fpCamera.fieldOfView;
         MoveWeaponToLowerPosition();
+        
         //MoveWeaponToUpPosition();
         //MoveWeaponToAimPosition();
     }
@@ -104,7 +101,6 @@ public class WeaponAimBehaviour : MonoBehaviour
 
         bipedIk.solvers.aim.IKPositionWeight = 1;
         bipedIk.solvers.lookAt.IKPositionWeight = 0;
-        // weaponAimIK.solver.IKPositionWeight = 1;
 
         _animator.SetBool(Constants.IsWeaponUp, _isWeaponUp);
     }
@@ -158,9 +154,11 @@ public class WeaponAimBehaviour : MonoBehaviour
         _targetWeaponRot = targetRotation;
     }
 
-    
-
-
+    private IEnumerator WaitForNextRoundToBeReadyToFire()
+    {
+        yield return new WaitForSeconds(_weaponLockWaitTime);
+        _roundsPerMinuteLock = true;
+    }
 
     // Update is called once per frame
     private void Update()
@@ -168,23 +166,27 @@ public class WeaponAimBehaviour : MonoBehaviour
         if (ReferenceEquals(_weaponTransform, null)) return;
         if (ReferenceEquals(_currentlyEquippedGun, null)) return;
         
-        if (Input.GetMouseButtonDown(0))
+        if (Input.GetMouseButton(0))
         {
             if (_isWeaponUp)
             {
-                //fire
-                if (!ReferenceEquals(_lowerWeaponCoRoutine, null))
+                if (_roundsPerMinuteLock)
                 {
-                    StopCoroutine(_lowerWeaponCoRoutine);
-                }
+                    _roundsPerMinuteLock = false;
+                    //fire
+                    if (!ReferenceEquals(_lowerWeaponCoRoutine, null))
+                    {
+                        StopCoroutine(_lowerWeaponCoRoutine);
+                    }
                 
-                _weaponFireScript.Fire(
-                    _currentlyEquippedGun.Stats.Recoil, 
-                    _gunSwayBehaviour, 
-                    _targetWeaponRot.eulerAngles, 
-                    _isWeaponAiming,
-                    _currentlyEquippedGun.Stats.Handling);
-
+                    _weaponFireScript.Fire(
+                        _gunSwayBehaviour, 
+                        _targetWeaponRot.eulerAngles, 
+                        _isWeaponAiming,
+                        _currentlyEquippedGun.Properties);
+                    
+                    StartCoroutine(WaitForNextRoundToBeReadyToFire());
+                }
             }
             else
             {

@@ -1,11 +1,10 @@
 ﻿using UnityEngine;
-using UnityEngine.Serialization;
 
 public class Gun : MonoBehaviour
 {
-    public GunStats Stats => stats;
+    public GunProperties Properties => properties;
     public GunPositions Positions => positions;
 
-    [SerializeField] private GunStats stats;
+    [SerializeField] private GunProperties properties;
     [SerializeField] private GunPositions positions;
 }

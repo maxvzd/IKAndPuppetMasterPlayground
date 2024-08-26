@@ -4,10 +4,6 @@ using UnityEngine;
 public class GunSwayAndRecoilBehaviour : MonoBehaviour
 {
     [SerializeField] private Transform objectToLerpTowards;
-    //[SerializeField] private AnimationCurve recoilCurve; 
-
-    //Will be determined by player skill eventually;
-    //[SerializeField] private float weaponSwayAmount;
 
     // Influenced by player skill too?
     private float _slerpTime;

@@ -2,35 +2,32 @@ using UnityEngine;
 
 public class MoveCamera : MonoBehaviour
 {
-    private float yRotation;
-    private float xRotation;
+    private float _yRotation;
+    private float _xRotation;
 
     [SerializeField] private float sensitivity; 
     [SerializeField] private float maxVerticalAngle;
-    [SerializeField] private Camera fpCamera;
     
     // Sart is called before the first frame update
-    void Start()
+    private void Start()
     {
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
         
-        yRotation = 0f;
-        xRotation = 0f;
+        _yRotation = 0f;
+        _xRotation = 0f;
     }
 
     // Update is called once per frame
-    void Update()
+    private void Update()
     {
         float xDelta = Input.GetAxis("Mouse Y") * sensitivity * Time.deltaTime;
         float yDelta = Input.GetAxis("Mouse X") * sensitivity * Time.deltaTime;
-        xRotation += xDelta;
-        yRotation += yDelta;
+        _xRotation += xDelta;
+        _yRotation += yDelta;
 
-        xRotation = Mathf.Clamp(xRotation, -maxVerticalAngle, maxVerticalAngle);
+        _xRotation = Mathf.Clamp(_xRotation, -maxVerticalAngle, maxVerticalAngle);
 
-        transform.eulerAngles = new Vector3(-xRotation, yRotation, 0);
-        //fpCamera.transform.eulerAngles = new Vector3(-xRotation, yRotation, 0);
-        //fpCamera.transform.Rotate(new Vector3(-xDelta, yDelta, -fpCamera.transform.eulerAngles.z));
+        transform.eulerAngles = new Vector3(-_xRotation, _yRotation, 0);
     }
 }
