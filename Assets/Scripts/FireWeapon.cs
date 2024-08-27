@@ -80,12 +80,13 @@ public class FireWeapon : MonoBehaviour
         return -currentTransform.forward * velocityWithDrag - currentTransform.up * (gravity * (distance / velocityWithDrag));
     }
     
-    public void Fire(GunSwayAndRecoilBehaviour swayBehaviour, Vector3 desiredRotation, bool isAiming, GunProperties gunProps, Transform target)
+    public void Fire(GunSwayAndRecoilBehaviour swayBehaviour, Vector3 currentRotation, bool isAiming, GunProperties gunProps, Transform target)
     {
         RayCastShot(gunProps, target);
-        
-        
-        StartCoroutine(RotateWeaponCoRoutine(desiredRotation, isAiming, gunProps.Handling));
+
+
+        //TODO: This needs some reworking
+        //StartCoroutine(RotateWeaponCoRoutine(currentRotation, isAiming, gunProps.Handling));
         muzzleFlashVFX.Play();
         muzzleFlashLight.SetActive(true);
 
@@ -105,7 +106,7 @@ public class FireWeapon : MonoBehaviour
     }
     
     //Amount of rotation + recovery time influenced by weapon handling (and eventually skill)
-    private IEnumerator RotateWeaponCoRoutine(Vector3 desiredRotation, bool isAiming, float weaponHandling)
+    private IEnumerator RotateWeaponCoRoutine(Vector3 currentRotation, bool isAiming, float weaponHandling)
     {
         float weaponSwayModifier = 1f;
         if (isAiming)
@@ -121,13 +122,13 @@ public class FireWeapon : MonoBehaviour
         float yRot = Random.Range(-yRange, yRange);
         float zRot = Random.Range(-zRange, zRange);
         
-        float lerpTime = 0.2f * weaponHandling;
+        float lerpTime = 0.1f * weaponHandling;
         
         //Vector3 oldRot = _targetWeaponRot.eulerAngles;
         //Vector3 oldRot = _targetWeaponRot.eulerAngles;
         Vector3 recoilJitter = new Vector3(xRot, yRot, zRot);
         
-        yield return LerpToRotation(lerpTime * 2, desiredRotation, desiredRotation + recoilJitter, transform, recoilCurve);
+        yield return LerpToRotation(lerpTime * 2, currentRotation, currentRotation + recoilJitter, transform, recoilCurve);
     }
 
     private static IEnumerator LerpToRotation(float lerpTime, Vector3 oldRot, Vector3 newRot, Transform weaponTransform, AnimationCurve curve)
@@ -143,5 +144,7 @@ public class FireWeapon : MonoBehaviour
             timeElapsed += Time.deltaTime;
             yield return new WaitForEndOfFrame();
         }
+
+        weaponTransform.localEulerAngles = oldRot;
     }
 }
