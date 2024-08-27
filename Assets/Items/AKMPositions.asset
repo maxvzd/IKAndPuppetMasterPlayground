@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gunUpPosition: {x: -0.0417, y: -0.1447, z: 0.4391}
   gunUpRotation: {x: 211.174, y: -4.632, z: 91.028}
-  gunAimPosition: {x: -0.17, y: -0.265, z: 0.45}
-  gunAimRotation: {x: 214.585, y: 8.077, z: 77.581}
+  gunAimPosition: {x: -0.1987, y: -0.2598, z: 0.4088}
+  gunAimRotation: {x: 225, y: 0, z: 75}
   gunLoweredPosition: {x: 0.076, y: -0.242, z: 0.227}
   gunLoweredRotation: {x: 252.846, y: 38.435, z: 52.246}
