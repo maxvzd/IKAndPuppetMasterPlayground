@@ -10,45 +10,64 @@ public class FireWeapon : MonoBehaviour
     [SerializeField] private GameObject muzzleFlashLight;
     [SerializeField] private GameObject firePoint;
 
+    [SerializeField] private GameObject bulletImpact;
+
     private AudioSource _audioSource;
 
     private void Start()
     {
         _audioSource = GetComponent<AudioSource>();
     }
-
     
     //Calculates bullet drop
     //Is this even worth it tbh?? Do we really need to account for that much distance?
-    private void RayCastShot(GunProperties gunProps)
+    //Changed it to a straight raycast for now - bullet physics is it's own entire thing
+    private void RayCastShot(GunProperties gunProps, Transform target)
     {
-        float stepForEachRayCast = 5f;
-        float gravity = 9.81f;
-        bool isHit = false;
-        float distanceTravelled = 0f;
-        
+        // float stepForEachRayCast = 5f;
+        // float gravity = 9.81f;
+        // bool isHit = false;
+        // float distanceTravelled = 0f;
+        //
+        // Vector3 origin = firePoint.transform.position;
+        // //Vector3 endPoint = new Vector3(origin.x, gravity * (stepForEachRayCast / gunProps.MuzzleVelocity), origin.z + gunProps.MuzzleVelocity);
+        //
+        // Vector3 endPoint = CalculateEndPointOfShotOverXMetres(gravity, stepForEachRayCast, gunProps.MuzzleVelocity, distanceTravelled);
+        //
+        // while (!isHit && distanceTravelled < gunProps.MuzzleVelocity)
+        // {
+        //     Vector3 direction = endPoint - origin;
+        //     //Ray ray = new Ray(firePoint.transform.position, direction);
+        //     Debug.DrawRay(origin, direction, Color.green, 5f);
+        //     
+        //     if(Physics.Raycast(origin, direction, out RaycastHit hit))
+        //     {
+        //         isHit = true;
+        //
+        //         Instantiate(bulletImpact, hit.point, Quaternion.FromToRotation(Vector3.up, hit.normal));
+        //         Debug.DrawRay(hit.point, hit.normal * 0.2f, Color.red, 3f);
+        //
+        //         break;
+        //     }
+        //
+        //     origin = endPoint;
+        //     endPoint = CalculateEndPointOfShotOverXMetres(gravity, stepForEachRayCast, gunProps.MuzzleVelocity, distanceTravelled);
+        //     distanceTravelled += stepForEachRayCast;
+        // }
+
+        //Doesn't account for bullet drop
         Vector3 origin = firePoint.transform.position;
-        //Vector3 endPoint = new Vector3(origin.x, gravity * (stepForEachRayCast / gunProps.MuzzleVelocity), origin.z + gunProps.MuzzleVelocity);
-
-        Vector3 endPoint = CalculateEndPointOfShotOverXMetres(gravity, stepForEachRayCast, gunProps.MuzzleVelocity, distanceTravelled);
+        //minus forward cause gun is incorrectly orientated backwards
+        Vector3 direction = (target.position - origin).normalized;
         
-        while (!isHit && distanceTravelled < gunProps.MuzzleVelocity)
+        Debug.DrawRay(origin, direction * gunProps.EffectiveRange, Color.green, 3);
+        
+        if (Physics.Raycast(origin, direction, out RaycastHit hit, gunProps.EffectiveRange))
         {
-            Vector3 direction = endPoint - origin;
-            //Ray ray = new Ray(firePoint.transform.position, direction);
-            Debug.DrawRay(origin, direction, Color.green, 5f);
-            
-            if(Physics.Raycast(origin, direction, out RaycastHit hit))
-            {
-                isHit = true;
-
-                break;
-            }
-
-            origin = endPoint;
-            endPoint = CalculateEndPointOfShotOverXMetres(gravity, stepForEachRayCast, gunProps.MuzzleVelocity, distanceTravelled);
-            distanceTravelled += stepForEachRayCast;
+            Instantiate(bulletImpact, hit.point, Quaternion.FromToRotation(Vector3.up, hit.normal));
+            Debug.DrawRay(hit.point, hit.normal * 0.2f, Color.red, 3f);
         }
+        
     }
 
     //forward transform is only negative because the gun faces the wrong way!!!
@@ -61,9 +80,9 @@ public class FireWeapon : MonoBehaviour
         return -currentTransform.forward * velocityWithDrag - currentTransform.up * (gravity * (distance / velocityWithDrag));
     }
     
-    public void Fire(GunSwayAndRecoilBehaviour swayBehaviour, Vector3 desiredRotation, bool isAiming, GunProperties gunProps)
+    public void Fire(GunSwayAndRecoilBehaviour swayBehaviour, Vector3 desiredRotation, bool isAiming, GunProperties gunProps, Transform target)
     {
-        RayCastShot(gunProps);
+        RayCastShot(gunProps, target);
         
         
         StartCoroutine(RotateWeaponCoRoutine(desiredRotation, isAiming, gunProps.Handling));

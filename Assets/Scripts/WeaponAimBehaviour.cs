@@ -21,7 +21,9 @@ public class WeaponAimBehaviour : MonoBehaviour
     [SerializeField] private Camera fpCamera;
     [SerializeField] private float aimFOV;
     [SerializeField] private float aimSpeed;
-    [SerializeField] private BipedIK bipedIk;
+    //[SerializeField] private BipedIK bipedIk;
+    [SerializeField] private AimIK headIk;
+    [SerializeField] private AimIK aimIk;
     [SerializeField] private Transform weaponAimTarget;
     
     private float _timeElapsed;
@@ -99,8 +101,10 @@ public class WeaponAimBehaviour : MonoBehaviour
             0.25f, 
             _originalFOV);
 
-        bipedIk.solvers.aim.IKPositionWeight = 1;
-        bipedIk.solvers.lookAt.IKPositionWeight = 0;
+        aimIk.solver.IKPositionWeight = 1;
+        headIk.solver.IKPositionWeight = 0;
+        // bipedIk.solvers.aim.IKPositionWeight = 1;
+        // bipedIk.solvers.lookAt.IKPositionWeight = 0;
 
         _animator.SetBool(Constants.IsWeaponUp, _isWeaponUp);
     }
@@ -116,8 +120,11 @@ public class WeaponAimBehaviour : MonoBehaviour
             aimSpeed, 
             aimFOV);
         
-        bipedIk.solvers.aim.IKPositionWeight = 1;
-        bipedIk.solvers.lookAt.IKPositionWeight = 0;
+        // bipedIk.solvers.aim.IKPositionWeight = 1;
+        // bipedIk.solvers.lookAt.IKPositionWeight = 0;
+        
+        aimIk.solver.IKPositionWeight = 1;
+        headIk.solver.IKPositionWeight = 0;
 
         _animator.SetBool(Constants.IsWeaponUp, _isWeaponUp);
     }
@@ -133,8 +140,12 @@ public class WeaponAimBehaviour : MonoBehaviour
             0.25f, 
             _originalFOV);
         
-        bipedIk.solvers.aim.IKPositionWeight = 0;
-        bipedIk.solvers.lookAt.IKPositionWeight = 1;
+        // bipedIk.solvers.aim.IKPositionWeight = 0;
+        // bipedIk.solvers.lookAt.IKPositionWeight = 1;
+        
+        aimIk.solver.IKPositionWeight = 0;
+        headIk.solver.IKPositionWeight = 1;
+        
         _animator.SetBool(Constants.IsWeaponUp, _isWeaponUp);
     }
 
@@ -183,7 +194,8 @@ public class WeaponAimBehaviour : MonoBehaviour
                         _gunSwayBehaviour, 
                         _targetWeaponRot.eulerAngles, 
                         _isWeaponAiming,
-                        _currentlyEquippedGun.Properties);
+                        _currentlyEquippedGun.Properties,
+                        weaponAimTarget);
                     
                     StartCoroutine(WaitForNextRoundToBeReadyToFire());
                 }
