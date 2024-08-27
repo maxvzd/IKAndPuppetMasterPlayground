@@ -176,8 +176,11 @@ public class WeaponAimBehaviour : MonoBehaviour
     {
         if (ReferenceEquals(_weaponTransform, null)) return;
         if (ReferenceEquals(_currentlyEquippedGun, null)) return;
+
+        FireMode fireMode = _currentlyEquippedGun.FireMode;
         
-        if (Input.GetMouseButton(0))
+        if (Input.GetButton(Constants.Fire1) && fireMode == FireMode.Auto ||
+            Input.GetButtonDown(Constants.Fire1) && fireMode == FireMode.SemiAuto)
         {
             if (_isWeaponUp)
             {
@@ -198,16 +201,18 @@ public class WeaponAimBehaviour : MonoBehaviour
                         weaponAimTarget);
                     
                     StartCoroutine(WaitForNextRoundToBeReadyToFire());
+                    ResetLowerWeaponCoRoutine();
                 }
             }
-            else
-            {
-                MoveWeaponToUpPosition();
-                ResetLowerWeaponCoRoutine();
-            }
+        }
+        
+        if (Input.GetButtonDown(Constants.Fire1) && !_isWeaponUp)
+        {
+            MoveWeaponToUpPosition();
+            ResetLowerWeaponCoRoutine();
         }
 
-        if (Input.GetMouseButtonDown(1))
+        if (Input.GetButtonDown(Constants.Fire2))
         {
             MoveWeaponToAimPosition();
             if (!ReferenceEquals(_lowerWeaponCoRoutine, null))
@@ -218,7 +223,7 @@ public class WeaponAimBehaviour : MonoBehaviour
             _lowerWeaponCoRoutine = null;
         }
 
-        if (Input.GetMouseButtonUp(1))
+        if (Input.GetButtonUp(Constants.Fire2))
         {
             MoveWeaponToUpPosition();
             ResetLowerWeaponCoRoutine();

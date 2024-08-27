@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 [CreateAssetMenu]
 public class GunProperties : WeaponProperties
@@ -11,10 +12,18 @@ public class GunProperties : WeaponProperties
     public float MuzzleVelocity => muzzleVelocity;
     //Metres per second
     public float EffectiveRange => effectiveRange;
-    
+    public IReadOnlyList<FireMode> AvailableFireModes => availableFireModes;
+
     [SerializeField] private float recoil;
     [SerializeField] private float roundsPerMinute;
     [SerializeField] private AudioClip fireSound;
     [SerializeField] private float muzzleVelocity;
     [SerializeField] private float effectiveRange;
+    [SerializeField] private List<FireMode> availableFireModes;
+}
+
+public enum FireMode
+{
+    SemiAuto,
+    Auto
 }

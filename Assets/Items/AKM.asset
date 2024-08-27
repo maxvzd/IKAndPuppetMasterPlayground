@@ -23,3 +23,4 @@ MonoBehaviour:
   fireSound: {fileID: 8300000, guid: 65201ddabb4144f6a8fb9480120b7656, type: 3}
   muzzleVelocity: 700
   effectiveRange: 350
+  availableFireModes: 0000000001000000
