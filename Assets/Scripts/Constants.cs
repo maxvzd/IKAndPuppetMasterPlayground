@@ -14,5 +14,6 @@ public static class Constants
     public static readonly string Fire1 = "Fire1";
     public static readonly string Fire2 = "Fire2";
     public static readonly string SwitchFireMode = "SwitchFireMode";
+    public static readonly string RaiseLowerWeapon = "RaiseLowerWeapon";
     
 }

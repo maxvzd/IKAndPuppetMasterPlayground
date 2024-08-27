@@ -212,6 +212,18 @@ public class WeaponAimBehaviour : MonoBehaviour
             ResetLowerWeaponCoRoutine();
         }
 
+        if (Input.GetButtonDown(Constants.RaiseLowerWeapon))
+        {
+            if (_isWeaponUp)
+            {
+                MoveWeaponToLowerPosition();
+            }
+            else
+            {
+                MoveWeaponToUpPosition();
+            }
+        }
+
         if (Input.GetButtonDown(Constants.Fire2))
         {
             MoveWeaponToAimPosition();
