@@ -18,7 +18,7 @@ public class FireWeapon : MonoBehaviour
     // {
     //     _audioSource = GetComponent<AudioSource>();
     // }
-    
+
     //Calculates bullet drop
     //Is this even worth it tbh?? Do we really need to account for that much distance?
     //Changed it to a straight raycast for now - bullet physics is it's own entire thing
@@ -59,15 +59,14 @@ public class FireWeapon : MonoBehaviour
         Vector3 origin = from.position;
         //minus forward cause gun is incorrectly orientated backwards
         Vector3 direction = (target.position - origin).normalized;
-        
+
         Debug.DrawRay(origin, direction * gunProps.EffectiveRange, Color.green, 3);
-        
+
         if (Physics.Raycast(origin, direction, out RaycastHit hit, gunProps.EffectiveRange))
         {
             //Instantiate(bulletImpact, hit.point, Quaternion.FromToRotation(Vector3.up, hit.normal));
             Debug.DrawRay(hit.point, hit.normal * 0.2f, Color.red, 3f);
         }
-        
     }
 
     //forward transform is only negative because the gun faces the wrong way!!!
@@ -76,44 +75,54 @@ public class FireWeapon : MonoBehaviour
     {
         Transform currentTransform = transform;
         float velocityWithDrag = muzzleVelocity - totalDistanceTravelled * 50; //50 is the bullet slowing down 50m/s
-        
+
         return -currentTransform.forward * velocityWithDrag - currentTransform.up * (gravity * (distance / velocityWithDrag));
     }
-    
-    public static void Fire(
-        GunSwayAndRecoilBehaviour swayBehaviour, 
-        Vector3 currentRotation, 
-        bool isAiming, 
-        GunProperties gunProps, 
+
+    public static bool Fire(
+        GunSwayAndRecoilBehaviour swayBehaviour,
+        Vector3 currentRotation,
+        bool isAiming,
+        Gun gun,
         Transform to,
         Transform from,
         VisualEffect muzzleFlashVFX,
         GameObject muzzleFlashLight,
         AnimationCurve recoilCurve,
-        AudioSource audioSource)
+        AudioSource audioSource,
+        int numberOfBulletsLeft,
+        AudioClip emptyClick)
     {
-        RayCastShot(gunProps, to, from);
-
-        //TODO: This needs some reworking
-        //StartCoroutine(RotateWeaponCoRoutine(currentRotation, isAiming, gunProps.Handling));
-        muzzleFlashVFX.Play();
-        muzzleFlashLight.SetActive(true);
-
-        audioSource.clip = gunProps.FireSound;
-        float pitch = Random.Range(0.9f, 1.1f);
-        audioSource.pitch = pitch;
-        audioSource.Play();
-
-        float recoil = gunProps.Recoil;
-        if (isAiming)
+        if (numberOfBulletsLeft > 0)
         {
-            recoil *= 0.5f;
+            RayCastShot(gun.Properties, to, from);
+
+            //TODO: This needs some reworking
+            //StartCoroutine(RotateWeaponCoRoutine(currentRotation, isAiming, gunProps.Handling));
+            muzzleFlashVFX.Play();
+            muzzleFlashLight.SetActive(true);
+
+            audioSource.clip = gun.Properties.FireSound;
+            float pitch = Random.Range(0.9f, 1.1f);
+            audioSource.pitch = pitch;
+            audioSource.Play();
+
+            float recoil = gun.Properties.Recoil;
+            if (isAiming)
+            {
+                recoil *= 0.5f;
+            }
+
+            float xSway = Random.Range(-0.01f, 0.01f); //Random bit of shake in the x direction so that it doesn't just go straight up
+            swayBehaviour.AddRecoil(new Vector3(xSway, recoil, 0));
+            return true;
         }
-        
-        float xSway = Random.Range(-0.01f, 0.01f); //Random bit of shake in the x direction so that it doesn't just go straight up
-        swayBehaviour.AddRecoil(new Vector3(xSway, recoil, 0));
+
+        //audioSource.clip = emptyClick;
+        audioSource.PlayOneShot(emptyClick);
+        return false;
     }
-    
+
     //Amount of rotation + recovery time influenced by weapon handling (and eventually skill)
     private IEnumerator RotateWeaponCoRoutine(Vector3 currentRotation, bool isAiming, float weaponHandling, AnimationCurve recoilCurve)
     {
@@ -125,18 +134,18 @@ public class FireWeapon : MonoBehaviour
 
         float xRange = 10 * weaponHandling * weaponSwayModifier;
         float yRange = 10 * weaponHandling * weaponSwayModifier;
-        float zRange = 10 * weaponHandling * weaponSwayModifier; 
-        
+        float zRange = 10 * weaponHandling * weaponSwayModifier;
+
         float xRot = Random.Range(0, xRange);
         float yRot = Random.Range(-yRange, yRange);
         float zRot = Random.Range(-zRange, zRange);
-        
+
         float lerpTime = 0.1f * weaponHandling;
-        
+
         //Vector3 oldRot = _targetWeaponRot.eulerAngles;
         //Vector3 oldRot = _targetWeaponRot.eulerAngles;
         Vector3 recoilJitter = new Vector3(xRot, yRot, zRot);
-        
+
         yield return LerpToRotation(lerpTime * 2, currentRotation, currentRotation + recoilJitter, transform, recoilCurve);
     }
 
@@ -145,11 +154,10 @@ public class FireWeapon : MonoBehaviour
         float timeElapsed = 0;
         while (timeElapsed < lerpTime)
         {
-            
             float t = timeElapsed / lerpTime;
-            
+
             weaponTransform.localEulerAngles = Vector3.Lerp(oldRot, newRot, curve.Evaluate(t));
-            
+
             timeElapsed += Time.deltaTime;
             yield return new WaitForEndOfFrame();
         }

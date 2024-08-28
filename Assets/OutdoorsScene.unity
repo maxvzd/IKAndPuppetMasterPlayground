@@ -2620,6 +2620,7 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+  emptyMagClick: {fileID: 8300000, guid: c753a015b3ae3a44c93b0b74a7d6bbf2, type: 3}
 --- !u!82 &706335095
 AudioSource:
   m_ObjectHideFlags: 0

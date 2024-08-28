@@ -7,9 +7,12 @@ namespace WeaponFireBehaviours
     public class AutomaticFireBehaviour: BaseFireBehaviour
     {
         public override FireMode FireMode => FireMode.Auto;
-        private IEnumerator _fireCoroutine;
+        
+        public AutomaticFireBehaviour(GunProperties gunProps) : base(gunProps)
+        {
+        }
 
-        public override void TriggerDown(
+        public override bool TriggerDown(
             Gun gun,
             GunSwayAndRecoilBehaviour gunSwayBehaviour, 
             bool isWeaponAiming, 
@@ -18,56 +21,54 @@ namespace WeaponFireBehaviours
             VisualEffect muzzleFlashEffect,
             GameObject muzzleFlashLight, 
             AnimationCurve recoilCurve, 
-            AudioSource audioSource)
+            AudioSource audioSource,
+            int numberOfBullets,
+            AudioClip emptyClick)
         {
-            _fireCoroutine = AutoFire(gunSwayBehaviour,
-                gun.transform,
-                isWeaponAiming,
-                gun.Properties,
-                target,
-                from,
-                muzzleFlashEffect,
-                muzzleFlashLight,
-                recoilCurve,
-                audioSource);
-            gun.StartCoroutine(_fireCoroutine);
-        }
-
-        public override void TriggerUp(Gun gun)
-        {
-            gun.StopCoroutine(_fireCoroutine);
-        }
-
-        private IEnumerator AutoFire(
-            GunSwayAndRecoilBehaviour gunSwayBehaviour, 
-            Transform weaponTransForm, 
-            bool isWeaponAiming, 
-            GunProperties properties, 
-            Transform target, 
-            Transform from, 
-            VisualEffect muzzleFlashEffect,
-            GameObject muzzleFlashLight, 
-            AnimationCurve recoilCurve, 
-            AudioSource audioSource)
-        {
-            while (true)
+            bool successfullyFiredBullet = false;
+            
+            if (RoundsPerMinuteLock)
             {
-                FireWeapon.Fire(gunSwayBehaviour,
-                    weaponTransForm.eulerAngles,
+                RoundsPerMinuteLock = false;
+                
+                successfullyFiredBullet = FireWeapon.Fire(gunSwayBehaviour,
+                    gun.transform.eulerAngles,
                     isWeaponAiming,
-                    properties,
+                    gun,
                     target,
                     from,
                     muzzleFlashEffect,
                     muzzleFlashLight,
                     recoilCurve,
-                    audioSource);
-                yield return WaitForNextRoundToBeReadyToFire();
+                    audioSource,
+                    numberOfBullets,
+                    emptyClick);
+                gun.StartCoroutine(WaitForNextRoundToBeReadyToFire());
             }
+            return successfullyFiredBullet;
         }
 
-        public AutomaticFireBehaviour(GunProperties gunProps) : base(gunProps)
+        public override void TriggerUp()
         {
         }
+
+        // private IEnumerator AutoFire(
+        //     GunSwayAndRecoilBehaviour gunSwayBehaviour, 
+        //     Transform weaponTransForm, 
+        //     bool isWeaponAiming, 
+        //     Gun gun, 
+        //     Transform target, 
+        //     Transform from, 
+        //     VisualEffect muzzleFlashEffect,
+        //     GameObject muzzleFlashLight, 
+        //     AnimationCurve recoilCurve, 
+        //     AudioSource audioSource)
+        // {
+        //     while (true)
+        //     {
+        //         
+        //         yield return WaitForNextRoundToBeReadyToFire();
+        //     }
+        // }
     }
 }

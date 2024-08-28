@@ -1,20 +1,20 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.VFX;
 
 namespace WeaponFireBehaviours
 {
     public class SemiAutoFireBehaviour : BaseFireBehaviour
     {
+        private bool _hasFiredWithTriggerDown;
         
         public override FireMode FireMode => FireMode.SemiAuto;
         
         public SemiAutoFireBehaviour(GunProperties gunProps) : base(gunProps)
         {
+            _hasFiredWithTriggerDown = false;
         }
 
-        public override void TriggerDown(
+        public override bool TriggerDown(
             Gun gun,
             GunSwayAndRecoilBehaviour gunSwayBehaviour, 
             bool isWeaponAiming, 
@@ -23,29 +23,38 @@ namespace WeaponFireBehaviours
             VisualEffect muzzleFlashEffect,
             GameObject muzzleFlashLight, 
             AnimationCurve recoilCurve, 
-            AudioSource audioSource)
+            AudioSource audioSource,
+            int numberOfBullets,
+            AudioClip emptyClick)
         {
-            if (RoundsPerMinuteLock)
+            bool successfullyFiredBullet = false;
+            
+            if (RoundsPerMinuteLock && !_hasFiredWithTriggerDown)
             {
                 RoundsPerMinuteLock = false;
+                _hasFiredWithTriggerDown = true;
                 
-                FireWeapon.Fire(gunSwayBehaviour,
+                successfullyFiredBullet = FireWeapon.Fire(gunSwayBehaviour,
                     gun.transform.eulerAngles,
                     isWeaponAiming,
-                    gun.Properties,
+                    gun,
                     target,
                     from,
                     muzzleFlashEffect,
                     muzzleFlashLight,
                     recoilCurve,
-                    audioSource);
-                gun.StartCoroutine(base.WaitForNextRoundToBeReadyToFire());
+                    audioSource,
+                    numberOfBullets,
+                    emptyClick);
+                gun.StartCoroutine(WaitForNextRoundToBeReadyToFire());
             }
+
+            return successfullyFiredBullet;
         }
 
-        public override void TriggerUp(Gun gun)
+        public override void TriggerUp()
         {
-            //Do nothing
+            _hasFiredWithTriggerDown = false;
         }
     }
 }

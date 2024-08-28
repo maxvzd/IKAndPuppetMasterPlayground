@@ -10,7 +10,7 @@ public class Gun : MonoBehaviour
     public GunProperties Properties => properties;
     public GunPositions Positions => positions;
     public FireMode FireMode => _weaponFireBehaviour.FireMode;
-   
+
     [SerializeField] private GunProperties properties;
     [SerializeField] private GunPositions positions;
     [SerializeField] private Transform weaponAimTarget;
@@ -18,11 +18,14 @@ public class Gun : MonoBehaviour
     [SerializeField] private VisualEffect muzzleFlashVFX;
     [SerializeField] private GameObject muzzleFlashLight;
     [SerializeField] private AnimationCurve recoilCurve;
-    
+    [SerializeField] private AudioClip emptyMagClick;
+
     private IWeaponFireBehaviour _weaponFireBehaviour;
 
     private int _selectedFireMode = 0;
+
     private Magazine _magazine;
+
     //private bool _roundsPerMinuteLock;
     //private float _weaponLockWaitTime;
     //private FireWeapon _weaponFireScript;
@@ -33,7 +36,7 @@ public class Gun : MonoBehaviour
     private void Start()
     {
         //_weaponFireScript = GetComponent<FireWeapon>();
-        
+
         _gunSwayBehaviour = weaponAimTarget.GetComponent<GunSwayAndRecoilBehaviour>();
         _audioSource = GetComponent<AudioSource>();
 
@@ -55,29 +58,45 @@ public class Gun : MonoBehaviour
                     break;
             }
         }
+
         _fireModes = fireModes;
         _weaponFireBehaviour = fireModes[0];
+
+        _magazine = gameObject.AddComponent<Magazine>();
     }
 
     public void TriggerDown()
-    {
-        _weaponFireBehaviour.TriggerDown(
-            this,
-            _gunSwayBehaviour,
-            transform,
-            weaponAimTarget,
-            firePoint,
-            muzzleFlashVFX,
-            muzzleFlashLight,
-            recoilCurve,
-            _audioSource);
+     {
+    //     if (_magazine.NumberOfBullets > 0)
+    //     {
+            if (_weaponFireBehaviour.TriggerDown(
+                    this,
+                    _gunSwayBehaviour,
+                    transform,
+                    weaponAimTarget,
+                    firePoint,
+                    muzzleFlashVFX,
+                    muzzleFlashLight,
+                    recoilCurve,
+                    _audioSource,
+                    _magazine.NumberOfBullets,
+                    emptyMagClick))
+            {
+                _magazine.RemoveRound();
+            }
+        // }
+        // else
+        // {
+        //     _audioSource.clip = emptyMagClick;
+        //     _audioSource.Play();
+        // }
     }
 
     public void TriggerUp()
     {
-        _weaponFireBehaviour.TriggerUp(this);
+        _weaponFireBehaviour.TriggerUp();
     }
-    
+
 
     private void Update()
     {
@@ -85,8 +104,8 @@ public class Gun : MonoBehaviour
         {
             ReloadWeapon();
         }
-        
-        
+
+
         // if (Input.GetButton(Constants.Fire1Key) && FireMode == FireMode.Auto ||
         //     Input.GetButtonDown(Constants.Fire1Key) && FireMode == FireMode.SemiAuto)
         // {
@@ -122,10 +141,8 @@ public class Gun : MonoBehaviour
         {
             _selectedFireMode = 0;
         }
-        
-        _weaponFireBehaviour = _fireModes.Count > 0 ?
-            _fireModes[_selectedFireMode] : 
-            new SemiAutoFireBehaviour(properties);
+
+        _weaponFireBehaviour = _fireModes.Count > 0 ? _fireModes[_selectedFireMode] : new SemiAutoFireBehaviour(properties);
     }
 
     public void ReloadWeapon()

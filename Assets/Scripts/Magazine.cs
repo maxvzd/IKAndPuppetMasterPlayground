@@ -7,8 +7,8 @@ public class Magazine : MonoBehaviour
     public Caliber Caliber => caliber;
     public ItemProperties Properties => properties;
     
-    [SerializeField] private int capacity;
-    [SerializeField] private int numberOfBullets;
+    [SerializeField] private int capacity = 30;
+    [SerializeField] private int numberOfBullets = 30;
     [SerializeField] private Caliber caliber;
     [SerializeField] private ItemProperties properties;
 
@@ -21,5 +21,10 @@ public class Magazine : MonoBehaviour
         }
 
         numberOfBullets = totalInMagazine;
+    }
+
+    public void RemoveRound()
+    {
+        numberOfBullets--;
     }
 }

@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.VFX;
 
 namespace WeaponFireBehaviours
@@ -8,7 +7,7 @@ namespace WeaponFireBehaviours
     {
         FireMode FireMode { get; }
     
-        void TriggerDown(
+        bool TriggerDown(
             Gun gun,
             GunSwayAndRecoilBehaviour gunSwayBehaviour,
             bool isWeaponAiming,
@@ -17,8 +16,10 @@ namespace WeaponFireBehaviours
             VisualEffect muzzleFlashEffect,
             GameObject muzzleFlashLight, 
             AnimationCurve recoilCurve, 
-            AudioSource audioSource);
+            AudioSource audioSource,
+            int numberOfBullets,
+            AudioClip emptyClick);
         
-        void TriggerUp(Gun gun);
+        void TriggerUp();
     }
 }

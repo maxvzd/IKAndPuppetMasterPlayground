@@ -14,7 +14,7 @@ public class EquipmentInputSystem : MonoBehaviour
     // Update is called once per frame
     private void Update()
     {
-        if (Input.GetButtonDown(Constants.Fire1Key))
+        if (Input.GetButton(Constants.Fire1Key))
         {
             currentlyEquippedGun.TriggerDown();
         }

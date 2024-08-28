@@ -22,7 +22,7 @@ namespace WeaponFireBehaviours
 
         //Leave for concrete class to override
 
-        public virtual void TriggerDown(
+        public virtual bool TriggerDown(
             Gun gun,
             GunSwayAndRecoilBehaviour gunSwayBehaviour, 
             bool isWeaponAiming, 
@@ -31,13 +31,16 @@ namespace WeaponFireBehaviours
             VisualEffect muzzleFlashEffect,
             GameObject muzzleFlashLight, 
             AnimationCurve recoilCurve, 
-            AudioSource audioSource)
+            AudioSource audioSource,
+            int numberOfBullets,
+            AudioClip emptyClick)
         {
+            return false;
         }
 
 
         //Leave for concrete class to override
-        public virtual void TriggerUp(Gun gun)
+        public virtual void TriggerUp()
         {
         }
         
