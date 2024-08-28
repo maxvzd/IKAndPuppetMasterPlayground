@@ -4,6 +4,9 @@ using UnityEngine;
 
 public class WeaponAimBehaviour : MonoBehaviour
 {
+    public bool IsWeaponUp => _isWeaponUp; 
+    public bool IsWeaponAiming => _isWeaponAiming; 
+    
     private Animator _animator;
     private bool _isWeaponUp;
     private bool _isWeaponAiming;
@@ -11,8 +14,6 @@ public class WeaponAimBehaviour : MonoBehaviour
 
     private Gun _currentlyEquippedGun;
     private Transform _weaponTransform;
-    private FireWeapon _weaponFireScript;
-    private GunSwayAndRecoilBehaviour _gunSwayBehaviour;
 
     [SerializeField] private Transform weaponSlot;
     [SerializeField] private Camera fpCamera;
@@ -20,35 +21,21 @@ public class WeaponAimBehaviour : MonoBehaviour
     [SerializeField] private float aimSpeed;
     [SerializeField] private AimIK headIk;
     [SerializeField] private AimIK aimIk;
-    [SerializeField] private Transform weaponAimTarget;
 
     private float _originalFOV;
     private IEnumerator _weaponRotLerpCoroutine;
-
-    private bool _roundsPerMinuteLock;
-    private float _weaponLockWaitTime;
 
     // Start is called before the first frame update
     void Start()
     {
         _animator = GetComponent<Animator>();
 
-        _roundsPerMinuteLock = true;
         _weaponTransform = null;
         if (weaponSlot.childCount > 0)
         {
             _weaponTransform = weaponSlot.GetChild(0);
-
-            _weaponFireScript = _weaponTransform.GetComponent<FireWeapon>();
+            
             _currentlyEquippedGun = _weaponTransform.GetComponent<Gun>();
-            _gunSwayBehaviour = weaponAimTarget.GetComponent<GunSwayAndRecoilBehaviour>();
-
-            //This will eventually rely more on player skill
-            _gunSwayBehaviour.SetSwayAmount(_currentlyEquippedGun.Properties.Handling * 0.01f);
-
-            float roundsPerMinute = _currentlyEquippedGun.Properties.RoundsPerMinute;
-            float roundsPerSecond = roundsPerMinute / 60f;
-            _weaponLockWaitTime = 1 / roundsPerSecond;
         }
 
         _originalFOV = fpCamera.fieldOfView;
@@ -71,7 +58,7 @@ public class WeaponAimBehaviour : MonoBehaviour
             StopCoroutine(_lowerWeaponCoRoutine);
         }
 
-        _lowerWeaponCoRoutine = LowerWeaponAfterXSeconds(3);
+        _lowerWeaponCoRoutine = LowerWeaponAfterXSeconds(10);
         StartCoroutine(_lowerWeaponCoRoutine);
     }
 
@@ -141,12 +128,6 @@ public class WeaponAimBehaviour : MonoBehaviour
         StartCoroutine(_weaponRotLerpCoroutine);
     }
 
-    private IEnumerator WaitForNextRoundToBeReadyToFire()
-    {
-        yield return new WaitForSeconds(_weaponLockWaitTime);
-        _roundsPerMinuteLock = true;
-    }
-
     private IEnumerator LerpToWeaponPositionAndRotation(Vector3 position, Quaternion rotation, float lerpLength, float targetFOV, float aimIkWeight, float headIkWeight)
     {
         float timeElapsed = 0f;
@@ -183,42 +164,16 @@ public class WeaponAimBehaviour : MonoBehaviour
         if (ReferenceEquals(_weaponTransform, null)) return;
         if (ReferenceEquals(_currentlyEquippedGun, null)) return;
         
-        FireMode fireMode = _currentlyEquippedGun.FireMode;
-        
-        if (Input.GetButton(Constants.Fire1) && fireMode == FireMode.Auto ||
-            Input.GetButtonDown(Constants.Fire1) && fireMode == FireMode.SemiAuto)
+        if (Input.GetButtonDown(Constants.Fire1Key))
         {
-            if (_isWeaponUp)
+            if (!_isWeaponUp)
             {
-                if (_roundsPerMinuteLock)
-                {
-                    _roundsPerMinuteLock = false;
-                    //fire
-                    if (!ReferenceEquals(_lowerWeaponCoRoutine, null))
-                    {
-                        StopCoroutine(_lowerWeaponCoRoutine);
-                    }
-        
-                    _weaponFireScript.Fire(
-                        _gunSwayBehaviour,
-                        _weaponTransform.localEulerAngles,
-                        _isWeaponAiming,
-                        _currentlyEquippedGun.Properties,
-                        weaponAimTarget);
-        
-                    StartCoroutine(WaitForNextRoundToBeReadyToFire());
-                    ResetLowerWeaponCoRoutine();
-                }
+                MoveWeaponToUpPosition();
             }
-        }
-        
-        if (Input.GetButtonDown(Constants.Fire1) && !_isWeaponUp)
-        {
-            MoveWeaponToUpPosition();
             ResetLowerWeaponCoRoutine();
         }
         
-        if (Input.GetButtonDown(Constants.RaiseLowerWeapon))
+        if (Input.GetButtonDown(Constants.RaiseLowerWeaponKey))
         {
             if (_isWeaponUp)
             {
@@ -230,7 +185,7 @@ public class WeaponAimBehaviour : MonoBehaviour
             }
         }
         
-        if (Input.GetButtonDown(Constants.Fire2))
+        if (Input.GetButtonDown(Constants.Fire2Key))
         {
             MoveWeaponToAimPosition();
             if (!ReferenceEquals(_lowerWeaponCoRoutine, null))
@@ -241,7 +196,7 @@ public class WeaponAimBehaviour : MonoBehaviour
             _lowerWeaponCoRoutine = null;
         }
         
-        if (Input.GetButtonUp(Constants.Fire2))
+        if (Input.GetButtonUp(Constants.Fire2Key))
         {
             MoveWeaponToUpPosition();
             ResetLowerWeaponCoRoutine();

@@ -313,6 +313,7 @@ GameObject:
   - component: {fileID: 93902472}
   - component: {fileID: 93902474}
   - component: {fileID: 93902475}
+  - component: {fileID: 93902476}
   m_Layer: 3
   m_Name: MaleDummy
   m_TagString: Untagged
@@ -469,7 +470,6 @@ MonoBehaviour:
   aimSpeed: 0.5
   headIk: {fileID: 93902472}
   aimIk: {fileID: 93902474}
-  weaponAimTarget: {fileID: 55825793}
 --- !u!114 &93902472
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1111,6 +1111,19 @@ MonoBehaviour:
   spineBend: 2
   spineSpeed: 3
   spine: []
+--- !u!114 &93902476
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 93902459}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: af8ace8e7121cfa46aa61565c8a20e81, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  currentlyEquippedGun: {fileID: 706335094}
 --- !u!1 &120122349
 GameObject:
   m_ObjectHideFlags: 0
@@ -1839,6 +1852,10 @@ PrefabInstance:
         type: 3}
       insertIndex: -1
       addedObject: {fileID: 706335096}
+    - targetCorrespondingSourceObject: {fileID: -927199367670048503, guid: 99fcce1f10b2ebd4a8cd31a345f6bed8,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 706335097}
     - targetCorrespondingSourceObject: {fileID: 4188326014647556062, guid: 99fcce1f10b2ebd4a8cd31a345f6bed8,
         type: 3}
       insertIndex: -1
@@ -2552,6 +2569,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 28f9fcad885cb8244a29e8f86641eb7a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &706335094
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 706335090}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1837759511664436bf3f13c18550abd4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  properties: {fileID: 11400000, guid: ce34bfd88f206364c8889b49420ae76a, type: 2}
+  positions: {fileID: 11400000, guid: 5b4b7444967c37742b17d09a253859c2, type: 2}
+  weaponAimTarget: {fileID: 55825793}
+  firePoint: {fileID: 1207315357}
+  muzzleFlashVFX: {fileID: 1207315359}
+  muzzleFlashLight: {fileID: 596230207}
   recoilCurve:
     serializedVersion: 2
     m_Curve:
@@ -2585,24 +2620,6 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  muzzleFlashVFX: {fileID: 1207315359}
-  muzzleFlashLight: {fileID: 596230207}
-  firePoint: {fileID: 1207315356}
-  bulletImpact: {fileID: 100002, guid: 99c73c92ac40473459640b165473206f, type: 3}
---- !u!114 &706335094
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 706335090}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1837759511664436bf3f13c18550abd4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  properties: {fileID: 11400000, guid: ce34bfd88f206364c8889b49420ae76a, type: 2}
-  positions: {fileID: 11400000, guid: 5b4b7444967c37742b17d09a253859c2, type: 2}
 --- !u!82 &706335095
 AudioSource:
   m_ObjectHideFlags: 0
@@ -2709,6 +2726,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: cba0fe3e8e475154ebffbdabd332dfcf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &706335097
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 706335090}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 785f703239cadad49b1c05bd533e7bb6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &740779384

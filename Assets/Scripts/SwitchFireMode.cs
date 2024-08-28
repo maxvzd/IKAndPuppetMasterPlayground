@@ -15,7 +15,7 @@ public class SwitchFireMode : MonoBehaviour
     // Update is called once per frame
     private void Update()
     {
-        if (!Input.GetButtonDown(Constants.SwitchFireMode)) return;
+        if (!Input.GetButtonDown(Constants.SwitchFireModeKey)) return;
         
         if (!ReferenceEquals(_gunScript, null))
         {

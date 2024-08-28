@@ -5,24 +5,24 @@ using Random = UnityEngine.Random;
 
 public class FireWeapon : MonoBehaviour
 {
-    [SerializeField] private AnimationCurve recoilCurve;
-    [SerializeField] private VisualEffect muzzleFlashVFX;
-    [SerializeField] private GameObject muzzleFlashLight;
-    [SerializeField] private GameObject firePoint;
+//     [SerializeField] private AnimationCurve recoilCurve;
+//     [SerializeField] private VisualEffect muzzleFlashVFX;
+//     [SerializeField] private GameObject muzzleFlashLight;
+//     [SerializeField] private GameObject firePoint;
+//
+//     [SerializeField] private GameObject bulletImpact;
 
-    [SerializeField] private GameObject bulletImpact;
+    //private AudioSource _audioSource;
 
-    private AudioSource _audioSource;
-
-    private void Start()
-    {
-        _audioSource = GetComponent<AudioSource>();
-    }
+    // private void Start()
+    // {
+    //     _audioSource = GetComponent<AudioSource>();
+    // }
     
     //Calculates bullet drop
     //Is this even worth it tbh?? Do we really need to account for that much distance?
     //Changed it to a straight raycast for now - bullet physics is it's own entire thing
-    private void RayCastShot(GunProperties gunProps, Transform target)
+    private static void RayCastShot(GunProperties gunProps, Transform target, Transform from)
     {
         // float stepForEachRayCast = 5f;
         // float gravity = 9.81f;
@@ -56,7 +56,7 @@ public class FireWeapon : MonoBehaviour
         // }
 
         //Doesn't account for bullet drop
-        Vector3 origin = firePoint.transform.position;
+        Vector3 origin = from.position;
         //minus forward cause gun is incorrectly orientated backwards
         Vector3 direction = (target.position - origin).normalized;
         
@@ -64,7 +64,7 @@ public class FireWeapon : MonoBehaviour
         
         if (Physics.Raycast(origin, direction, out RaycastHit hit, gunProps.EffectiveRange))
         {
-            Instantiate(bulletImpact, hit.point, Quaternion.FromToRotation(Vector3.up, hit.normal));
+            //Instantiate(bulletImpact, hit.point, Quaternion.FromToRotation(Vector3.up, hit.normal));
             Debug.DrawRay(hit.point, hit.normal * 0.2f, Color.red, 3f);
         }
         
@@ -80,20 +80,29 @@ public class FireWeapon : MonoBehaviour
         return -currentTransform.forward * velocityWithDrag - currentTransform.up * (gravity * (distance / velocityWithDrag));
     }
     
-    public void Fire(GunSwayAndRecoilBehaviour swayBehaviour, Vector3 currentRotation, bool isAiming, GunProperties gunProps, Transform target)
+    public static void Fire(
+        GunSwayAndRecoilBehaviour swayBehaviour, 
+        Vector3 currentRotation, 
+        bool isAiming, 
+        GunProperties gunProps, 
+        Transform to,
+        Transform from,
+        VisualEffect muzzleFlashVFX,
+        GameObject muzzleFlashLight,
+        AnimationCurve recoilCurve,
+        AudioSource audioSource)
     {
-        RayCastShot(gunProps, target);
-
+        RayCastShot(gunProps, to, from);
 
         //TODO: This needs some reworking
         //StartCoroutine(RotateWeaponCoRoutine(currentRotation, isAiming, gunProps.Handling));
         muzzleFlashVFX.Play();
         muzzleFlashLight.SetActive(true);
 
-        _audioSource.clip = gunProps.FireSound;
+        audioSource.clip = gunProps.FireSound;
         float pitch = Random.Range(0.9f, 1.1f);
-        _audioSource.pitch = pitch;
-        _audioSource.Play();
+        audioSource.pitch = pitch;
+        audioSource.Play();
 
         float recoil = gunProps.Recoil;
         if (isAiming)
@@ -106,7 +115,7 @@ public class FireWeapon : MonoBehaviour
     }
     
     //Amount of rotation + recovery time influenced by weapon handling (and eventually skill)
-    private IEnumerator RotateWeaponCoRoutine(Vector3 currentRotation, bool isAiming, float weaponHandling)
+    private IEnumerator RotateWeaponCoRoutine(Vector3 currentRotation, bool isAiming, float weaponHandling, AnimationCurve recoilCurve)
     {
         float weaponSwayModifier = 1f;
         if (isAiming)

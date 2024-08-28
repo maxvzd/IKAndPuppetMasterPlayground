@@ -11,9 +11,10 @@ public static class Constants
 
     public static readonly string ForwardDirectionKey = "Vertical";
     public static readonly string RightDirectionKey = "Horizontal";
-    public static readonly string Fire1 = "Fire1";
-    public static readonly string Fire2 = "Fire2";
-    public static readonly string SwitchFireMode = "SwitchFireMode";
-    public static readonly string RaiseLowerWeapon = "RaiseLowerWeapon";
+    public static readonly string Fire1Key = "Fire1";
+    public static readonly string Fire2Key = "Fire2";
+    public static readonly string SwitchFireModeKey = "SwitchFireMode";
+    public static readonly string RaiseLowerWeaponKey = "RaiseLowerWeapon";
+    public static readonly string ReloadGunKey = "ReloadGun";
     
 }

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+using WeaponFireBehaviours;
 
 [CreateAssetMenu]
 public class GunProperties : WeaponProperties
@@ -8,10 +9,12 @@ public class GunProperties : WeaponProperties
     public float RoundsPerMinute => roundsPerMinute;
     public AudioClip FireSound => fireSound;
     
+    
     //Metres per second
     public float MuzzleVelocity => muzzleVelocity;
     //Metres per second
     public float EffectiveRange => effectiveRange;
+
     public IReadOnlyList<FireMode> AvailableFireModes => availableFireModes;
 
     [SerializeField] private float recoil;
