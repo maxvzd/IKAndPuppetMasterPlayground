@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using RootMotion.FinalIK;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.VFX;
 using WeaponFireBehaviours;
 
@@ -20,18 +22,19 @@ public class Gun : MonoBehaviour
     [SerializeField] private AnimationCurve recoilCurve;
     [SerializeField] private AudioClip emptyMagClick;
 
+    [SerializeField] private Animator animator;
+    [SerializeField] private AnimationEventListener animationEventListener;
+    [SerializeField] private FullBodyBipedIK bipedIk;
+    [SerializeField] private Transform rightHandWeaponSlot;
+    [SerializeField] private Transform chestWeaponSlot;
+
     private IWeaponFireBehaviour _weaponFireBehaviour;
-
     private int _selectedFireMode = 0;
-
     private Magazine _magazine;
-
-    //private bool _roundsPerMinuteLock;
-    //private float _weaponLockWaitTime;
-    //private FireWeapon _weaponFireScript;
     private GunSwayAndRecoilBehaviour _gunSwayBehaviour;
     private AudioSource _audioSource;
     private IReadOnlyList<IWeaponFireBehaviour> _fireModes;
+    private bool _isReloading;
 
     private void Start()
     {
@@ -63,33 +66,40 @@ public class Gun : MonoBehaviour
         _weaponFireBehaviour = fireModes[0];
 
         _magazine = gameObject.AddComponent<Magazine>();
+
+        animationEventListener.OnFinishedReloading += OnFinishedReloading;
+    }
+
+    private void OnFinishedReloading(object sender, EventArgs e)
+    {
+        _isReloading = false;
+
+        //FIX THIS
+        // bipedIk.solver.leftArmMapping.weight = 1;
+        // bipedIk.solver.rightArmMapping.weight = 1;
+        // transform.SetParent(chestWeaponSlot, false);
+        _magazine.AddRounds(30);
     }
 
     public void TriggerDown()
-     {
-    //     if (_magazine.NumberOfBullets > 0)
-    //     {
-            if (_weaponFireBehaviour.TriggerDown(
-                    this,
-                    _gunSwayBehaviour,
-                    transform,
-                    weaponAimTarget,
-                    firePoint,
-                    muzzleFlashVFX,
-                    muzzleFlashLight,
-                    recoilCurve,
-                    _audioSource,
-                    _magazine.NumberOfBullets,
-                    emptyMagClick))
-            {
-                _magazine.RemoveRound();
-            }
-        // }
-        // else
-        // {
-        //     _audioSource.clip = emptyMagClick;
-        //     _audioSource.Play();
-        // }
+    {
+        if (_isReloading) return;
+
+        if (_weaponFireBehaviour.TriggerDown(
+                this,
+                _gunSwayBehaviour,
+                transform,
+                weaponAimTarget,
+                firePoint,
+                muzzleFlashVFX,
+                muzzleFlashLight,
+                recoilCurve,
+                _audioSource,
+                _magazine.NumberOfBullets,
+                emptyMagClick))
+        {
+            _magazine.RemoveRound();
+        }
     }
 
     public void TriggerUp()
@@ -104,34 +114,6 @@ public class Gun : MonoBehaviour
         {
             ReloadWeapon();
         }
-
-
-        // if (Input.GetButton(Constants.Fire1Key) && FireMode == FireMode.Auto ||
-        //     Input.GetButtonDown(Constants.Fire1Key) && FireMode == FireMode.SemiAuto)
-        // {
-        //     if (_isWeaponUp)
-        //     {
-        //         if (_roundsPerMinuteLock)
-        //         {
-        //             _roundsPerMinuteLock = false;
-        //             //fire
-        //             // if (!ReferenceEquals(_lowerWeaponCoRoutine, null))
-        //             // {
-        //             //     StopCoroutine(_lowerWeaponCoRoutine);
-        //             // }
-        //
-        //             _weaponFireScript.Fire(
-        //                 _gunSwayBehaviour,
-        //                 transform.localEulerAngles,
-        //                 _isWeaponAiming,
-        //                 Properties,
-        //                 weaponAimTarget);
-        //             
-        //             StartCoroutine(WaitForNextRoundToBeReadyToFire());
-        //             //ResetLowerWeaponCoRoutine();
-        //         }
-        //     }
-        // }
     }
 
     public void CycleFireMode()
@@ -147,6 +129,10 @@ public class Gun : MonoBehaviour
 
     public void ReloadWeapon()
     {
-        _magazine.AddRounds(30);
+        _isReloading = true;
+        //bipedIk.solver.leftArmMapping.weight = 0;
+        //bipedIk.solver.rightArmMapping.weight = 0;
+        //transform.SetParent(rightHandWeaponSlot, false);
+        animator.SetTrigger(Constants.ReloadTrigger);
     }
 }
